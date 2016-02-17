@@ -23,7 +23,7 @@
             'jquery.ajaxQueue': 'xmodule_js/common_static/js/vendor/jquery.ajaxQueue',
             'jquery.ajax-retry': 'js/vendor/jquery.ajax-retry',
             'jquery.smoothScroll': 'xmodule_js/common_static/js/vendor/jquery.smooth-scroll.min',
-            'jquery.scrollTo': 'xmodule_js/common_static/js/vendor/jquery.scrollTo-1.4.2-min',
+            'jquery.scrollTo': 'xmodule_js/common_static/js/vendor/jquery.scrollTo.min',
             'jquery.timepicker': 'xmodule_js/common_static/js/vendor/timepicker/jquery.timepicker',
             'jquery.cookie': 'xmodule_js/common_static/js/vendor/jquery.cookie',
             'jquery.qtip': 'xmodule_js/common_static/js/vendor/jquery.qtip.min',
