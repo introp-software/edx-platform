@@ -6,6 +6,7 @@
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
+from context_processors import doc_url
 from lms.djangoapps.ccx.overrides import get_current_ccx
 from microsite_configuration import microsite
 from microsite_configuration.templatetags.microsite import platform_name
@@ -16,6 +17,8 @@ from branding import api as branding_api
 # app that handles site status messages
 from status.status import get_site_status_msg
 %>
+
+<%page args="online_help_token"/>
 
 ## Provide a hook for themes to inject branding on top.
 <%block name="navigation_top" />
@@ -98,7 +101,13 @@ site_status_msg = get_site_status_msg(course_id)
           %endif
         </%block>
       </ol>
-
+      
+      <ol>
+        <li>
+          <a href="${get_online_help_info(online_help_token)['doc_url']}" title="${_("Contextual Online Help")}" target="_blank">${_("Help")}</a>
+        </li>
+      </ol>
+      
       <%include file="user_dropdown.html"/>
 
       % if should_display_shopping_cart_func() and not (course and static.is_request_in_themed_site()): # see shoppingcart.context_processor.user_has_cart_context_processor
