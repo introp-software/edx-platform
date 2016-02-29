@@ -516,7 +516,7 @@ TEMPLATES = [
                 'edxmako.shortcuts.microsite_footer_context_processor',
 
                 # Online contextual help
-                'contentstore.context_processors.doc_url',
+                'context_processors.doc_url',
             ],
             # Change 'debug' in your environment settings files - not here.
             'debug': False
