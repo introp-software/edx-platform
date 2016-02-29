@@ -6,7 +6,7 @@ from util.context_processors import common_doc_url
 
 
 # Open and parse the configuration file when the module is initialized
-config_file = open(settings.REPO_ROOT / "docs" / "cms_config.ini")
+config_file = open(settings.REPO_ROOT / "docs" / "lms_config.ini")
 config = ConfigParser.ConfigParser()
 config.readfp(config_file)
 
