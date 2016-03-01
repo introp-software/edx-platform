@@ -1,14 +1,16 @@
-
+"""
+Django Template Context Processor for CMS Online Contextual Help
+"""
 import ConfigParser
 from django.conf import settings
 
-from util.context_processors import common_doc_url
+from util.help_context_processor import common_doc_url
 
 
 # Open and parse the configuration file when the module is initialized
-config_file = open(settings.REPO_ROOT / "docs" / "cms_config.ini")
-config = ConfigParser.ConfigParser()
-config.readfp(config_file)
+CONFIG_FILE = open(settings.REPO_ROOT / "docs" / "cms_config.ini")
+CONFIG = ConfigParser.ConfigParser()
+CONFIG.readfp(CONFIG_FILE)
 
 
 def doc_url(request=None):  # pylint: disable=unused-argument
@@ -23,4 +25,4 @@ def doc_url(request=None):  # pylint: disable=unused-argument
         request: Currently not used, but is passed by django to context processors.
             May be used in the future for determining the language of choice.
     """
-    return common_doc_url(request, config)
+    return common_doc_url(request, CONFIG)

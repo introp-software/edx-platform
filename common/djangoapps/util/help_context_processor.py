@@ -1,3 +1,7 @@
+"""
+Common functionality for Django Template Context Processor for
+Online Contextual Help.
+"""
 
 import ConfigParser
 from django.conf import settings
