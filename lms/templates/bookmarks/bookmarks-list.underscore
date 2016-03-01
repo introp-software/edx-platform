@@ -1,4 +1,3 @@
-<%def name="online_help_token()"><% return "bookmarks" %></%def>
 <div id="my-bookmarks" class="sr-is-focusable" tabindex="-1"></div>
 <h2 class="bookmarks-results-header"><%= gettext("My Bookmarks") %></h2>
 
@@ -42,3 +41,7 @@
     </div>
 
 <% } %>
+<%def name="online_help_token()"><% return "bookmarks" %></%def>
+<div class="bit external-help">
+                <a href="${get_online_help_info(online_help_token())['doc_url']}" target="_blank" class="button external-help-button">${_("Learn more about the course outline")}</a>
+            </div>
