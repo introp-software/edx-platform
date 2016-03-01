@@ -46,11 +46,12 @@ def common_doc_url(request, config_file_object):  # pylint: disable=unused-argum
                 default_option: name of the default configuration option whose value should be returned if the
                     requested option is not found
             """
-            try:
-                return config_file_object.get(section_name, option)
-            except (ConfigParser.NoOptionError, AttributeError):
-                log.debug("Didn't find a configuration option for '%s' section and '%s' option", section_name, option)
-                return config_file_object.get(section_name, default_option)
+            if option:
+                try:
+                    return config_file_object.get(section_name, option)
+                except (ConfigParser.NoOptionError, AttributeError):
+                    log.debug("Didn't find a configuration option for '%s' section and '%s' option", section_name, option)
+            return config_file_object.get(section_name, default_option)
 
         def get_doc_url():
             """
