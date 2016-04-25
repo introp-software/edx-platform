@@ -2,12 +2,21 @@
 Helpers for Course Blocks tests.
 """
 
+from openedx.core.djangolib.testing.utils import CacheIsolationMixin
 from openedx.core.lib.block_structure.cache import BlockStructureCache
 from openedx.core.lib.block_structure.transformer_registry import TransformerRegistry
 from ..api import _get_cache
 
 
-class EnableTransformerRegistryMixin(object):
+class EnableBlockTransformerCacheMixin(CacheIsolationMixin):
+    """
+    Mixin that enables the default cache, which is currently used by
+    Block Transformers.
+    """
+    ENABLED_CACHES = ['default', 'mongo_metadata_inheritance', 'loc_cache']
+
+
+class EnableTransformerRegistryMixin(EnableBlockTransformerCacheMixin):
     """
     Mixin that enables the TransformerRegistry to USE_PLUGIN_MANAGER for
     finding registered transformers.  USE_PLUGIN_MANAGER is set to False
@@ -22,7 +31,7 @@ class EnableTransformerRegistryMixin(object):
 
     def tearDown(self):
         super(EnableTransformerRegistryMixin, self).tearDown()
-        TransformerRegistry.USE_PLUGIN_MANAGER = False
+        TransformerRegistry.USE_PLUGIN_MANAGER = True
 
 
 def is_course_in_block_structure_cache(course_key, store):

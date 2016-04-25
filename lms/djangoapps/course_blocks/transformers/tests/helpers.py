@@ -12,9 +12,10 @@ from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
 from lms.djangoapps.courseware.access import has_access
 
 from ...api import get_course_blocks
+from ...tests.helpers import EnableBlockTransformerCacheMixin
 
 
-class TransformerRegistryTestMixin(object):
+class TransformerRegistryTestMixin(EnableBlockTransformerCacheMixin):
     """
     Mixin that overrides the TransformerRegistry so that it returns
     TRANSFORMER_CLASS_TO_TEST as a registered transformer.
@@ -36,8 +37,6 @@ class CourseStructureTestCase(TransformerRegistryTestMixin, ModuleStoreTestCase)
     """
     Helper for test cases that need to build course structures.
     """
-    ENABLED_CACHES = ['default', 'mongo_metadata_inheritance', 'loc_cache']
-
     def setUp(self):
         """
         Create users.
