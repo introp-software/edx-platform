@@ -28,6 +28,7 @@ from lms.lib.comment_client.thread import Thread
 from lms.lib.comment_client.user import User as CommentClientUser
 from lms.lib.comment_client.utils import CommentClientRequestError
 from openedx.core.djangoapps.course_groups.cohorts import get_cohort_names
+from openedx.core.djangoapps.user_api.accounts.serializers import AccountLegacyProfileSerializer
 
 
 def get_context(course, request, thread=None):
@@ -75,11 +76,27 @@ def validate_not_blank(value):
         raise ValidationError("This field may not be blank.")
 
 
+def get_user_profile_image_urls(request, username):
+    """
+    Returns image urls against a username
+
+    Arguments:
+        request: The django request object to create absolute uri
+        username: Username for which profile images are requested
+
+    Returns:
+        Metadata about a user's profile image.
+    """
+    user = DjangoUser.objects.select_related('profile').get(username=username)
+    return AccountLegacyProfileSerializer.get_profile_image(user.profile, user, request)
+
+
 class _ContentSerializer(serializers.Serializer):
     """A base class for thread and comment serializers."""
     id = serializers.CharField(read_only=True)  # pylint: disable=invalid-name
     author = serializers.SerializerMethodField()
     author_label = serializers.SerializerMethodField()
+    author_image_details = serializers.SerializerMethodField(read_only=True)
     created_at = serializers.CharField(read_only=True)
     updated_at = serializers.CharField(read_only=True)
     raw_body = serializers.CharField(source="body", validators=[validate_not_blank])
@@ -123,6 +140,12 @@ class _ContentSerializer(serializers.Serializer):
     def get_author(self, obj):
         """Returns the author's username, or None if the content is anonymous."""
         return None if self._is_anonymous(obj) else obj["username"]
+
+    def get_author_image_details(self, obj):
+        """
+        Returns the profile image details of content author user
+        """
+        return get_user_profile_image_urls(self.context["request"], obj["username"])
 
     def _get_user_label(self, user_id):
         """
@@ -289,6 +312,7 @@ class CommentSerializer(_ContentSerializer):
     endorsed = serializers.BooleanField(required=False)
     endorsed_by = serializers.SerializerMethodField()
     endorsed_by_label = serializers.SerializerMethodField()
+    endorser_image_details = serializers.SerializerMethodField(read_only=True)
     endorsed_at = serializers.SerializerMethodField()
     child_count = serializers.IntegerField(read_only=True)
     children = serializers.SerializerMethodField(required=False)
@@ -331,6 +355,13 @@ class CommentSerializer(_ContentSerializer):
             return self._get_user_label(int(endorsement["user_id"]))
         else:
             return None
+
+    def get_endorser_image_details(self, obj):
+        """
+        Returns the profile image details for endorsing user
+        """
+        endorsed_by = self.get_endorsed_by(obj)
+        return get_user_profile_image_urls(self.context["request"], endorsed_by) if endorsed_by else None
 
     def get_endorsed_at(self, obj):
         """Returns the timestamp for the endorsement, if available."""

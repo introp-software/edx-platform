@@ -40,7 +40,8 @@ from discussion_api.tests.utils import (
     CommentsServiceMockMixin,
     make_minimal_cs_comment,
     make_minimal_cs_thread,
-    make_paginated_api_response
+    make_paginated_api_response,
+    ProfileImageTestMixin,
 )
 from django_comment_common.models import (
     FORUM_ROLE_ADMINISTRATOR,
@@ -642,6 +643,7 @@ class GetThreadListTest(CommentsServiceMockMixin, UrlResetMixin, SharedModuleSto
                 "group_name": None,
                 "author": self.author.username,
                 "author_label": None,
+                "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
                 "created_at": "2015-04-28T00:00:00Z",
                 "updated_at": "2015-04-28T11:11:11Z",
                 "type": "discussion",
@@ -671,6 +673,7 @@ class GetThreadListTest(CommentsServiceMockMixin, UrlResetMixin, SharedModuleSto
                 "group_name": self.cohort.name,
                 "author": self.author.username,
                 "author_label": None,
+                "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
                 "created_at": "2015-04-28T22:22:22Z",
                 "updated_at": "2015-04-28T00:33:33Z",
                 "type": "question",
@@ -1103,7 +1106,7 @@ class GetCommentListTest(CommentsServiceMockMixin, SharedModuleStoreTestCase):
     def test_basic_query_params(self):
         self.get_comment_list(
             self.make_minimal_cs_thread({
-                "children": [make_minimal_cs_comment()],
+                "children": [make_minimal_cs_comment({"username": self.user.username})],
                 "resp_total": 71
             }),
             page=6,
@@ -1164,6 +1167,7 @@ class GetCommentListTest(CommentsServiceMockMixin, SharedModuleStoreTestCase):
                 "parent_id": None,
                 "author": self.author.username,
                 "author_label": None,
+                "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
                 "created_at": "2015-05-11T00:00:00Z",
                 "updated_at": "2015-05-11T11:11:11Z",
                 "raw_body": "Test body",
@@ -1171,6 +1175,7 @@ class GetCommentListTest(CommentsServiceMockMixin, SharedModuleStoreTestCase):
                 "endorsed": False,
                 "endorsed_by": None,
                 "endorsed_by_label": None,
+                "endorser_image_details": None,
                 "endorsed_at": None,
                 "abuse_flagged": False,
                 "voted": False,
@@ -1185,12 +1190,14 @@ class GetCommentListTest(CommentsServiceMockMixin, SharedModuleStoreTestCase):
                 "parent_id": None,
                 "author": None,
                 "author_label": None,
+                "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
                 "created_at": "2015-05-11T22:22:22Z",
                 "updated_at": "2015-05-11T33:33:33Z",
                 "raw_body": "More content",
                 "rendered_body": "<p>More content</p>",
                 "endorsed": False,
                 "endorsed_by": None,
+                "endorser_image_details": None,
                 "endorsed_by_label": None,
                 "endorsed_at": None,
                 "abuse_flagged": True,
@@ -1209,8 +1216,10 @@ class GetCommentListTest(CommentsServiceMockMixin, SharedModuleStoreTestCase):
     def test_question_content(self):
         thread = self.make_minimal_cs_thread({
             "thread_type": "question",
-            "endorsed_responses": [make_minimal_cs_comment({"id": "endorsed_comment"})],
-            "non_endorsed_responses": [make_minimal_cs_comment({"id": "non_endorsed_comment"})],
+            "endorsed_responses": [make_minimal_cs_comment({"id": "endorsed_comment", "username": self.user.username})],
+            "non_endorsed_responses": [make_minimal_cs_comment({
+                "id": "non_endorsed_comment", "username": self.user.username
+            })],
             "non_endorsed_resp_total": 1,
         })
 
@@ -1229,7 +1238,8 @@ class GetCommentListTest(CommentsServiceMockMixin, SharedModuleStoreTestCase):
             "anonymous": True,
             "children": [
                 make_minimal_cs_comment({
-                    "endorsement": {"user_id": str(self.author.id), "time": "2015-05-18T12:34:56Z"}
+                    "username": self.user.username,
+                    "endorsement": {"user_id": str(self.author.id), "time": "2015-05-18T12:34:56Z"},
                 })
             ]
         })
@@ -1256,7 +1266,7 @@ class GetCommentListTest(CommentsServiceMockMixin, SharedModuleStoreTestCase):
         # number of responses is unrealistic but convenient for this test
         thread = self.make_minimal_cs_thread({
             "thread_type": thread_type,
-            response_field: [make_minimal_cs_comment()],
+            response_field: [make_minimal_cs_comment({"username": self.user.username})],
             response_total_field: 5,
         })
 
@@ -1292,9 +1302,10 @@ class GetCommentListTest(CommentsServiceMockMixin, SharedModuleStoreTestCase):
     def test_question_endorsed_pagination(self):
         thread = self.make_minimal_cs_thread({
             "thread_type": "question",
-            "endorsed_responses": [
-                make_minimal_cs_comment({"id": "comment_{}".format(i)}) for i in range(10)
-            ]
+            "endorsed_responses": [make_minimal_cs_comment({
+                "id": "comment_{}".format(i),
+                "username": self.user.username
+            }) for i in range(10)]
         })
 
         def assert_page_correct(page, page_size, expected_start, expected_stop, expected_next, expected_prev):
@@ -1417,6 +1428,7 @@ class CreateThreadTest(
             "group_name": None,
             "author": self.user.username,
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "created_at": "2015-05-19T00:00:00Z",
             "updated_at": "2015-05-19T00:00:00Z",
             "type": "discussion",
@@ -1508,7 +1520,7 @@ class CreateThreadTest(
             cohort = CohortFactory.create(course_id=cohort_course.id, users=[self.user])
         role = Role.objects.create(name=role_name, course_id=cohort_course.id)
         role.users = [self.user]
-        self.register_post_thread_response({})
+        self.register_post_thread_response({"username": self.user.username})
         data = self.minimal_data.copy()
         data["course_id"] = unicode(cohort_course.id)
         if data_group_state == "group_is_none":
@@ -1537,7 +1549,7 @@ class CreateThreadTest(
                 self.fail("Unexpected validation error: {}".format(ex))
 
     def test_following(self):
-        self.register_post_thread_response({"id": "test_id"})
+        self.register_post_thread_response({"id": "test_id", "username": self.user.username})
         self.register_subscription_response(self.user)
         data = self.minimal_data.copy()
         data["following"] = "True"
@@ -1555,7 +1567,7 @@ class CreateThreadTest(
         )
 
     def test_voted(self):
-        self.register_post_thread_response({"id": "test_id"})
+        self.register_post_thread_response({"id": "test_id", "username": self.user.username})
         self.register_thread_votes_response("test_id")
         data = self.minimal_data.copy()
         data["voted"] = "True"
@@ -1571,7 +1583,7 @@ class CreateThreadTest(
         )
 
     def test_abuse_flagged(self):
-        self.register_post_thread_response({"id": "test_id"})
+        self.register_post_thread_response({"id": "test_id", "username": self.user.username})
         self.register_thread_flag_response("test_id")
         data = self.minimal_data.copy()
         data["abuse_flagged"] = "True"
@@ -1680,6 +1692,7 @@ class CreateCommentTest(
             "parent_id": parent_id,
             "author": self.user.username,
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "created_at": "2015-05-27T00:00:00Z",
             "updated_at": "2015-05-27T00:00:00Z",
             "raw_body": "Test body",
@@ -1687,6 +1700,7 @@ class CreateCommentTest(
             "endorsed": False,
             "endorsed_by": None,
             "endorsed_by_label": None,
+            "endorser_image_details": None,
             "endorsed_at": None,
             "abuse_flagged": False,
             "voted": False,
@@ -1757,7 +1771,7 @@ class CreateCommentTest(
                 "user_id": str(self.user.id) if is_thread_author else str(self.user.id + 1),
             })
         )
-        self.register_post_comment_response({}, "test_thread")
+        self.register_post_comment_response({"username": self.user.username}, "test_thread")
         data = self.minimal_data.copy()
         data["endorsed"] = True
         expected_error = (
@@ -1772,7 +1786,7 @@ class CreateCommentTest(
             self.assertTrue(expected_error)
 
     def test_voted(self):
-        self.register_post_comment_response({"id": "test_comment"}, "test_thread")
+        self.register_post_comment_response({"id": "test_comment", "username": self.user.username}, "test_thread")
         self.register_comment_votes_response("test_comment")
         data = self.minimal_data.copy()
         data["voted"] = "True"
@@ -1788,7 +1802,7 @@ class CreateCommentTest(
         )
 
     def test_abuse_flagged(self):
-        self.register_post_comment_response({"id": "test_comment"}, "test_thread")
+        self.register_post_comment_response({"id": "test_comment", "username": self.user.username}, "test_thread")
         self.register_comment_flag_response("test_comment")
         data = self.minimal_data.copy()
         data["abuse_flagged"] = "True"
@@ -1861,7 +1875,7 @@ class CreateCommentTest(
                 cohort.id + 1
             ),
         }))
-        self.register_post_comment_response({}, thread_id="cohort_thread")
+        self.register_post_comment_response({"username": self.user.username}, thread_id="cohort_thread")
         data = self.minimal_data.copy()
         data["thread_id"] = "cohort_thread"
         expected_error = (
@@ -1955,6 +1969,7 @@ class UpdateThreadTest(
             "group_name": None,
             "author": self.user.username,
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "created_at": "2015-05-29T00:00:00Z",
             "updated_at": "2015-05-29T00:00:00Z",
             "type": "discussion",
@@ -2370,6 +2385,7 @@ class UpdateCommentTest(
             "parent_id": parent_id,
             "author": self.user.username,
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "created_at": "2015-06-03T00:00:00Z",
             "updated_at": "2015-06-03T00:00:00Z",
             "raw_body": "Edited body",
@@ -2377,6 +2393,7 @@ class UpdateCommentTest(
             "endorsed": False,
             "endorsed_by": None,
             "endorsed_by_label": None,
+            "endorser_image_details": None,
             "endorsed_at": None,
             "abuse_flagged": False,
             "voted": False,
@@ -3048,6 +3065,7 @@ class RetrieveThreadTest(
         expected_response_data = {
             "author": self.thread_author.username,
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "created_at": "2015-05-29T00:00:00Z",
             "updated_at": "2015-05-29T00:00:00Z",
             "raw_body": "Test body",
@@ -3088,6 +3106,7 @@ class RetrieveThreadTest(
         expected_response_data = {
             "author": self.thread_author.username,
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "created_at": "2015-05-29T00:00:00Z",
             "updated_at": "2015-05-29T00:00:00Z",
             "raw_body": "Test body",

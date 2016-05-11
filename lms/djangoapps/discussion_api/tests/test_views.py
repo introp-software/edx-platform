@@ -9,6 +9,7 @@ import ddt
 import httpretty
 import mock
 from nose.plugins.attrib import attr
+from openedx.core.djangoapps.user_api.accounts.image_helpers import get_profile_image_storage
 from pytz import UTC
 
 from django.core.urlresolvers import reverse
@@ -24,7 +25,8 @@ from discussion_api.tests.utils import (
     CommentsServiceMockMixin,
     make_minimal_cs_comment,
     make_minimal_cs_thread,
-    make_paginated_api_response
+    make_paginated_api_response,
+    ProfileImageTestMixin,
 )
 from student.tests.factories import CourseEnrollmentFactory, UserFactory
 from util.testing import UrlResetMixin, PatchMediaTypeMixin
@@ -54,6 +56,9 @@ class DiscussionAPIViewTestMixin(CommentsServiceMockMixin, UrlResetMixin):
         )
         self.password = "password"
         self.user = UserFactory.create(password=self.password)
+        # Ensure that parental controls don't apply to this user
+        self.user.profile.year_of_birth = 1970
+        self.user.profile.save()
         CourseEnrollmentFactory.create(user=self.user, course_id=self.course.id)
         self.client.login(username=self.user.username, password=self.password)
 
@@ -230,7 +235,7 @@ class CourseTopicsViewTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
 @ddt.ddt
 @httpretty.activate
 @mock.patch.dict("django.conf.settings.FEATURES", {"ENABLE_DISCUSSION_SERVICE": True})
-class ThreadViewSetListTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
+class ThreadViewSetListTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase, ProfileImageTestMixin):
     """Tests for ThreadViewSet list"""
     def setUp(self):
         super(ThreadViewSetListTest, self).setUp()
@@ -249,6 +254,7 @@ class ThreadViewSetListTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
             "group_name": None,
             "author": "dummy",
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "created_at": "1970-01-01T00:00:00Z",
             "updated_at": "1970-01-01T00:00:00Z",
             "type": "discussion",
@@ -551,6 +557,44 @@ class ThreadViewSetListTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
             }
         )
 
+    def test_author_profile_image(self):
+        """
+        Tests thread has valid profile image url for thread author
+        """
+        source_threads = [{
+            "type": "thread",
+            "id": "test_thread",
+            "course_id": unicode(self.course.id),
+            "commentable_id": "test_topic",
+            "group_id": None,
+            "user_id": str(self.user.id),
+            "username": self.user.username,
+            "anonymous": False,
+            "anonymous_to_peers": False,
+            "created_at": "2015-04-28T00:00:00Z",
+            "updated_at": "2015-04-28T11:11:11Z",
+            "thread_type": "discussion",
+            "title": "Test Title",
+            "body": "Test body",
+            "pinned": False,
+            "closed": False,
+            "abuse_flaggers": [],
+            "votes": {"up_count": 4},
+            "comments_count": 5,
+            "unread_comments_count": 3,
+            "read": False,
+            "endorsed": False
+        }]
+
+        self.register_get_user_response(self.user, upvoted_ids=["test_thread"])
+        self.register_get_threads_response(source_threads, page=1, num_pages=1)
+        self.create_profile_image(self.user, get_profile_image_storage())
+        response = self.client.get(self.url, {"course_id": unicode(self.course.id)})
+        self.assertEqual(response.status_code, 200)
+        response_threads = json.loads(response.content)['results']
+        for response_thread in response_threads:
+            self.verify_profile_image_details(response_thread['author_image_details'], self.user.username)
+
 
 @httpretty.activate
 @disable_signal(api, 'thread_created')
@@ -585,6 +629,7 @@ class ThreadViewSetCreateTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
             "group_name": None,
             "author": self.user.username,
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "created_at": "2015-05-19T00:00:00Z",
             "updated_at": "2015-05-19T00:00:00Z",
             "type": "discussion",
@@ -671,6 +716,7 @@ class ThreadViewSetPartialUpdateTest(DiscussionAPIViewTestMixin, ModuleStoreTest
             "group_name": None,
             "author": self.user.username,
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "created_at": "1970-01-01T00:00:00Z",
             "updated_at": "1970-01-01T00:00:00Z",
             "type": "discussion",
@@ -901,13 +947,14 @@ class ThreadViewSetDeleteTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
 @ddt.ddt
 @httpretty.activate
 @mock.patch.dict("django.conf.settings.FEATURES", {"ENABLE_DISCUSSION_SERVICE": True})
-class CommentViewSetListTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
+class CommentViewSetListTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase, ProfileImageTestMixin):
     """Tests for CommentViewSet list"""
     def setUp(self):
         super(CommentViewSetListTest, self).setUp()
         self.author = UserFactory.create()
         self.url = reverse("comment-list")
         self.thread_id = "test_thread"
+        self.storage = get_profile_image_storage()
 
     def make_minimal_cs_thread(self, overrides=None):
         """
@@ -928,6 +975,7 @@ class CommentViewSetListTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
             "parent_id": None,
             "author": self.author.username,
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "created_at": "1970-01-01T00:00:00Z",
             "updated_at": "1970-01-01T00:00:00Z",
             "raw_body": "dummy",
@@ -935,6 +983,7 @@ class CommentViewSetListTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
             "endorsed": False,
             "endorsed_by": None,
             "endorsed_by_label": None,
+            "endorser_image_details": None,
             "endorsed_at": None,
             "abuse_flagged": False,
             "voted": False,
@@ -1066,8 +1115,16 @@ class CommentViewSetListTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
         self.register_get_user_response(self.user)
         thread = self.make_minimal_cs_thread({
             "thread_type": "question",
-            "endorsed_responses": [make_minimal_cs_comment({"id": "endorsed_comment"})],
-            "non_endorsed_responses": [make_minimal_cs_comment({"id": "non_endorsed_comment"})],
+            "endorsed_responses": [make_minimal_cs_comment({
+                "id": "endorsed_comment",
+                "user_id": self.user.id,
+                "username": self.user.username,
+            })],
+            "non_endorsed_responses": [make_minimal_cs_comment({
+                "id": "non_endorsed_comment",
+                "user_id": self.user.id,
+                "username": self.user.username,
+            })],
             "non_endorsed_resp_total": 1,
         })
         self.register_get_thread_response(thread)
@@ -1157,6 +1214,75 @@ class CommentViewSetListTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
             }
         )
 
+    def test_author_profile_image(self):
+        """
+        Tests all comments retrieved have valid profile image url for comment author
+        """
+        source_comments = [{
+            "type": "comment",
+            "id": "test_comment",
+            "thread_id": self.thread_id,
+            "parent_id": None,
+            "user_id": str(self.user.id),
+            "username": self.user.username,
+            "anonymous": False,
+            "anonymous_to_peers": False,
+            "created_at": "2015-05-11T00:00:00Z",
+            "updated_at": "2015-05-11T11:11:11Z",
+            "body": "Test body",
+            "endorsed": False,
+            "abuse_flaggers": [],
+            "votes": {"up_count": 4},
+            "child_count": 0,
+            "children": [],
+        }]
+        self.register_get_thread_response({
+            "id": self.thread_id,
+            "course_id": unicode(self.course.id),
+            "thread_type": "discussion",
+            "children": source_comments,
+            "resp_total": 100,
+        })
+        self.register_get_user_response(self.user, upvoted_ids=["test_comment"])
+        self.create_profile_image(self.user, get_profile_image_storage())
+        response = self.client.get(self.url, {"thread_id": self.thread_id})
+        self.assertEqual(response.status_code, 200)
+        response_comments = json.loads(response.content)['results']
+        for response_comment in response_comments:
+            self.verify_profile_image_details(response_comment['author_image_details'], self.user.username)
+
+    def test_endorser_profile_image(self):
+        """
+        Tests all comments retrieved have valid profile image url for endorsing user
+        """
+        self.register_get_user_response(self.user)
+        thread = self.make_minimal_cs_thread({
+            "thread_type": "question",
+            "endorsed_responses": [make_minimal_cs_comment({
+                "id": "endorsed_comment",
+                "user_id": self.user.id,
+                "username": self.user.username,
+                "endorsed": True,
+                "endorsement": {"user_id": self.user.id, "time": "2016-05-10T08:51:28Z"},
+            })],
+            "non_endorsed_responses": [make_minimal_cs_comment({
+                "id": "non_endorsed_comment",
+                "user_id": self.user.id,
+                "username": self.user.username,
+            })],
+            "non_endorsed_resp_total": 1,
+        })
+        self.register_get_thread_response(thread)
+        self.create_profile_image(self.user, get_profile_image_storage())
+        response = self.client.get(self.url, {
+            "thread_id": thread["id"],
+            "endorsed": True,
+        })
+        self.assertEqual(response.status_code, 200)
+        response_comments = json.loads(response.content)['results']
+        for response_comment in response_comments:
+            self.verify_profile_image_details(response_comment['endorser_image_details'], self.user.username)
+
 
 @httpretty.activate
 @disable_signal(api, 'comment_deleted')
@@ -1223,6 +1349,7 @@ class CommentViewSetCreateTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
             "parent_id": None,
             "author": self.user.username,
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "created_at": "1970-01-01T00:00:00Z",
             "updated_at": "1970-01-01T00:00:00Z",
             "raw_body": "Test body",
@@ -1230,6 +1357,7 @@ class CommentViewSetCreateTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
             "endorsed": False,
             "endorsed_by": None,
             "endorsed_by_label": None,
+            "endorser_image_details": None,
             "endorsed_at": None,
             "abuse_flagged": False,
             "voted": False,
@@ -1312,6 +1440,7 @@ class CommentViewSetPartialUpdateTest(DiscussionAPIViewTestMixin, ModuleStoreTes
             "parent_id": None,
             "author": self.user.username,
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "created_at": "1970-01-01T00:00:00Z",
             "updated_at": "1970-01-01T00:00:00Z",
             "raw_body": "Original body",
@@ -1319,6 +1448,7 @@ class CommentViewSetPartialUpdateTest(DiscussionAPIViewTestMixin, ModuleStoreTes
             "endorsed": False,
             "endorsed_by": None,
             "endorsed_by_label": None,
+            "endorser_image_details": None,
             "endorsed_at": None,
             "abuse_flagged": False,
             "voted": False,
@@ -1408,7 +1538,7 @@ class CommentViewSetPartialUpdateTest(DiscussionAPIViewTestMixin, ModuleStoreTes
 
 @httpretty.activate
 @mock.patch.dict("django.conf.settings.FEATURES", {"ENABLE_DISCUSSION_SERVICE": True})
-class ThreadViewSetRetrieveTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
+class ThreadViewSetRetrieveTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase, ProfileImageTestMixin):
     """Tests for ThreadViewSet Retrieve"""
     def setUp(self):
         super(ThreadViewSetRetrieveTest, self).setUp()
@@ -1431,6 +1561,7 @@ class ThreadViewSetRetrieveTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase)
         expected_response_data = {
             "author": self.user.username,
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "created_at": "2015-05-29T00:00:00Z",
             "updated_at": "2015-05-29T00:00:00Z",
             "raw_body": "Test body",
@@ -1469,10 +1600,27 @@ class ThreadViewSetRetrieveTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 404)
 
+    def test_author_profile_image(self):
+        """
+        Tests thread has valid profile image url for thread author
+        """
+        self.register_get_user_response(self.user)
+        cs_thread = make_minimal_cs_thread({
+            "id": self.thread_id,
+            "course_id": unicode(self.course.id),
+            "username": self.user.username,
+            "user_id": str(self.user.id),
+        })
+        self.register_get_thread_response(cs_thread)
+        self.create_profile_image(self.user, get_profile_image_storage())
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.verify_profile_image_details(json.loads(response.content)['author_image_details'], self.user.username)
+
 
 @httpretty.activate
 @mock.patch.dict("django.conf.settings.FEATURES", {"ENABLE_DISCUSSION_SERVICE": True})
-class CommentViewSetRetrieveTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase):
+class CommentViewSetRetrieveTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase, ProfileImageTestMixin):
     """Tests for CommentViewSet Retrieve"""
     def setUp(self):
         super(CommentViewSetRetrieveTest, self).setUp()
@@ -1516,6 +1664,7 @@ class CommentViewSetRetrieveTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase
             "thread_id": self.thread_id,
             "author": self.user.username,
             "author_label": None,
+            "author_image_details": ProfileImageTestMixin.DEFUALT_PROFILE_IMAGE_DETAILS,
             "raw_body": "Original body",
             "rendered_body": "<p>Original body</p>",
             "created_at": "2015-06-03T00:00:00Z",
@@ -1525,6 +1674,7 @@ class CommentViewSetRetrieveTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase
             "endorsed": False,
             "endorsed_by": None,
             "endorsed_by_label": None,
+            "endorser_image_details": None,
             "voted": False,
             "vote_count": 0,
             "abuse_flagged": False,
@@ -1566,3 +1716,24 @@ class CommentViewSetRetrieveTest(DiscussionAPIViewTestMixin, ModuleStoreTestCase
             404,
             {"developer_message": "Page not found (No results on this page)."}
         )
+
+    def test_author_profile_image(self):
+        """
+        Tests all comments retrieved have valid profile image url for comment author
+        """
+        self.register_get_user_response(self.user)
+        cs_comment_child = self.make_comment_data("test_child_comment", self.comment_id, children=[])
+        cs_comment = self.make_comment_data(self.comment_id, None, [cs_comment_child])
+        cs_thread = make_minimal_cs_thread({
+            "id": self.thread_id,
+            "course_id": unicode(self.course.id),
+            "children": [cs_comment],
+        })
+        self.register_get_thread_response(cs_thread)
+        self.register_get_comment_response(cs_comment)
+        self.create_profile_image(self.user, get_profile_image_storage())
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        response_comments = json.loads(response.content)['results']
+        for response_comment in response_comments:
+            self.verify_profile_image_details(response_comment['author_image_details'], self.user.username)
