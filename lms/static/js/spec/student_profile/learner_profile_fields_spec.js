@@ -54,6 +54,11 @@ define(['backbone', 'jquery', 'underscore', 'common/js/spec_helpers/ajax_helpers
                 TemplateHelpers.installTemplate("templates/fields/message_banner");
             });
 
+            afterEach(function () {
+                // image_field.js's window.onBeforeUnload breaks Karma in Chrome, clean it up after each test
+                $(window).off('beforeunload');
+            });
+
             var createFakeImageFile = function (size) {
                 var fileFakeData = 'i63ljc6giwoskyb9x5sw0169bdcmcxr3cdz8boqv0lik971972cmd6yknvcxr5sw0nvc169bdcmcxsdf';
                 return new Blob(
