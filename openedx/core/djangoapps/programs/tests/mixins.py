@@ -125,6 +125,19 @@ class ProgramsDataMixin(object):
         }
     ]
 
+    PROGRAMS_CREDENTIALS_DISPLAY_DATA = [
+        factories.ProgramCredential(
+            display_name=PROGRAMS_API_RESPONSE['results'][0]['name'],
+            subtitle=PROGRAMS_API_RESPONSE['results'][0]['subtitle'],
+            credential_url=PROGRAMS_CREDENTIALS_DATA[0]['certificate_url']
+        ),
+        factories.ProgramCredential(
+            display_name=PROGRAMS_API_RESPONSE['results'][1]['name'],
+            subtitle=PROGRAMS_API_RESPONSE['results'][1]['subtitle'],
+            credential_url=PROGRAMS_CREDENTIALS_DATA[1]['certificate_url']
+        )
+    ]
+
     def mock_programs_api(self, data=None, status_code=200):
         """Utility for mocking out Programs API URLs."""
         self.assertTrue(httpretty.is_enabled(), msg='httpretty must be enabled to mock Programs API calls.')

@@ -65,3 +65,15 @@ class Progress(factory.Factory):
     completed = []
     in_progress = []
     not_started = []
+
+
+class ProgramCredential(factory.Factory):
+    """
+    Factory for stubbing program credentials dicts.
+    """
+    class Meta(object):
+        model = dict
+
+    display_name = FuzzyText(prefix='Program ')
+    subtitle = FuzzyText(prefix='Subtitle ')
+    credential_url = None
