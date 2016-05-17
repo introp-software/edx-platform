@@ -65,27 +65,12 @@
                 text-transform: none;
                 justify-content: center;
 
-                .account-nav-link{
-                    font-size: em(16);
-                    color: $dark-gray;
+                .account-nav-link {
+                    font-size: em(14);
+                    color: $gray;
                     padding: 5px 25px 23px;
                     display: inline-block;
                     border-radius: 0;
-                }
-                .active{
-                    border-bottom: 4px solid $courseware-border-bottom-color !important;
-                }
-            }
-            li, div {
-                display: inline-block;
-                margin: 0 $baseline+1 0 0;
-                font-size: em(14);
-                font-weight: $font-semibold;
-                text-transform: uppercase;
-                letter-spacing: 0 !important;
-
-                &:last-child {
-                    margin-right: 0;
                 }
 
                 button {
@@ -94,13 +79,14 @@
                     @include appearance(none);
                     display:block;
                     padding: ($baseline/4);
-                    color: $link-color;
-                    font-weight: $font-semibold;
 
-                    &:hover, &:focus, &:active {
+                    &:hover,
+                    &:focus {
                         text-decoration: none;
-                        color: $link-color;
-                        outline: none;
+                        border-bottom: 4px solid $courseware-border-bottom-color !important;
+                    }
+                    &.active{
+                        border-bottom: 4px solid $black-t3 !important;
                     }
                 }
             }
@@ -110,13 +96,12 @@
 
 // +Settings Section
 .account-settings-sections {
-    padding-bottom: ($baseline*5);
 
     .section-header {
         @extend %t-title6;
         @extend %t-strong;
         padding-top: ($baseline/2)*3;
-        color: $lighter-base-font-color;
+        color: $dark-gray1;
     }
 
     .section {
@@ -126,6 +111,7 @@
 
         .account-settings-header-subtitle {
             font-size: em(18);
+            line-height: normal;
             color: $dark-gray;
             padding-top: 20px;
             padding-bottom: 10px;
@@ -179,7 +165,7 @@
                         @include transition(all 0.125s ease-in-out 0s);
                         display: inline-block;
                         padding: 0.625rem;
-                        border: 1px solid $gray-l5;
+                        border: 1px solid $light-gray;
                         border-radius: 2px;
                         background: $white;
                         font-size: $body-font-size;
@@ -267,6 +253,7 @@
 
                 &:last-child {
                     border-bottom: none;
+                    margin-bottom: ($baseline*2);
                 }
             }
 

@@ -45,10 +45,14 @@
 
                 $(this.navLink).removeClass('active');
                 $currentTab.addClass('active');
+
+                $(this.navLink).removeAttr('aria-describedby');
+                $currentTab.attr('aria-describedby', 'header-subtitle-'+this.activeTab);
             },
 
             renderSection: function (tabSections) {
                 var accountSectionView = new AccountSectionView({
+                    activeTabName: this.activeTab,
                     sections: tabSections,
                     el: '.account-settings-sections'
                 });

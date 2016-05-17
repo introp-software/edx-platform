@@ -16,7 +16,8 @@
 
             render: function () {
                 this.$el.html(_.template(sectionTemplate)({
-                    sections: this.options.sections
+                    sections: this.options.sections,
+                    activeTabName: this.options.activeTabName
                 }));
             }
         });
