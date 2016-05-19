@@ -16,9 +16,7 @@ import markupsafe
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Q
 
 from openedx.core.djangoapps.course_groups.models import CourseUserGroup
 from openedx.core.lib.html_to_text import html_to_text
@@ -33,6 +31,7 @@ from util.keyword_substitution import substitute_keywords_with_data
 from util.query import use_read_replica_if_available
 
 log = logging.getLogger(__name__)
+
 
 class Email(models.Model):
     """
@@ -75,13 +74,18 @@ class Target(models.Model):
         return "CourseEmail Target for: {}".format(self.target_type)
 
     def get_users(self, course_id, user_id=None):
+        """
+        Gets the users for a given target.
+
+        Result is returned in the form of a queryset, and may contain duplicates.
+        """
         staff_qset = CourseStaffRole(course_id).users_with_role()
         instructor_qset = CourseInstructorRole(course_id).users_with_role()
         staff_instructor_qset = (staff_qset | instructor_qset)
         enrollment_qset = User.objects.filter(
-           is_active=True,
-           courseenrollment__course_id=course_id,
-           courseenrollment__is_active=True
+            is_active=True,
+            courseenrollment__course_id=course_id,
+            courseenrollment__is_active=True
         )
         if self.target_type == SEND_TO_MYSELF:
             if user_id is None:
@@ -95,7 +99,7 @@ class Target(models.Model):
                 return use_read_replica_if_available(enrollment_qset)
             return use_read_replica_if_available(enrollment_qset.exclude(staff_instructor_qset)),
         elif self.target_type == SEND_TO_COHORT:
-            return self.cohort.users  # TODO: cohorts aren't hooked up, this may not work
+            return User.objects.none()  # TODO: cohorts aren't hooked up, put that logic here
         elif self.target_type == SEND_TO_ALL:
             # Return both learners and staff
             recipient_qsets = (
@@ -121,7 +125,7 @@ class CohortTarget(Target):
         super(CohortTarget, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
-        return "CourseEmail CohortTarget: {}".format(self.cohort.id)
+        return "CourseEmail CohortTarget: {}".format(self.cohort)
 
     @classmethod
     def ensure_valid_cohort(cls, cohort_name, course_id):
@@ -383,7 +387,7 @@ class BulkEmailFlag(ConfigurationModel):
 
     def __unicode__(self):
         current_model = BulkEmailFlag.current()
-        return u"<BulkEmailFlag: enabled {}, require_course_email_auth: {}>".format(
+        return u"BulkEmailFlag: enabled {}, require_course_email_auth: {}".format(
             current_model.is_enabled(),
             current_model.require_course_email_auth
         )

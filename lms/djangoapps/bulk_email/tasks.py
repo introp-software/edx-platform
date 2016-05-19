@@ -35,7 +35,6 @@ from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.core.mail.message import forbid_multi_line_headers
 from django.core.urlresolvers import reverse
-from django.db.models import Q
 
 from bulk_email.models import (
     CourseEmail, Optout, Target
@@ -95,6 +94,7 @@ BULK_EMAIL_FAILURE_ERRORS = (
     SESDailyQuotaExceededError,  # 24-hour allotment of outbound email has been exceeded.
     SMTPException,
 )
+
 
 def _get_course_email_context(course):
     """

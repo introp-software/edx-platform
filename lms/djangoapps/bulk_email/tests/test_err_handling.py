@@ -14,7 +14,7 @@ from mock import patch, Mock
 from nose.plugins.attrib import attr
 from smtplib import SMTPDataError, SMTPServerDisconnected, SMTPConnectError
 
-from bulk_email.models import CourseEmail, SEND_TO_ALL, BulkEmailFlag, AllTarget, EMAIL_TARGET_CLASS_MAP
+from bulk_email.models import CourseEmail, SEND_TO_ALL, BulkEmailFlag
 from bulk_email.tasks import perform_delegate_email_batches, send_course_email
 from instructor_task.models import InstructorTask
 from instructor_task.subtasks import (
@@ -204,7 +204,7 @@ class TestEmailErrors(ModuleStoreTestCase):
         Tests exception when the to_option in the email doesn't exist
         """
         with self.assertRaisesRegexp(Exception, 'Course email being sent to unrecognized target: "IDONTEXIST" *'):
-            email = CourseEmail.create(
+            email = CourseEmail.create(  # pylint: disable=unused-variable
                 self.course.id,
                 self.instructor,
                 ["IDONTEXIST"],

@@ -66,7 +66,7 @@ class @SendEmail
                         "learners": gettext("All learners who are enrolled in this course"),
                 }
                 success_message = gettext("Your email message was successfully queued for sending. In courses with a large number of learners, email messages to learners might take up to an hour to be sent.")
-                confirm_message = gettext("You are sending an email message with the subject <%=subject %> to the following recipients. Is this OK?")
+                confirm_message = gettext("You are sending an email message with the subject <%-subject %> to the following recipients. Is this OK?")
                 for target in targets
                         confirm_message += "\n\t-" + target_map[target]
                 full_confirm_message = _.template(confirm_message)({subject: subject})
