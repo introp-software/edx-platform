@@ -5,7 +5,8 @@ define([
     'edx-ui-toolkit/js/utils/html-utils',
     'text!templates/paging-header.underscore'
 ], function(_, Backbone, gettext, HtmlUtils, pagingHeaderTemplate) {
-
+        'use strict';
+        /* jshint maxlen:false */
         var PagingHeader = Backbone.View.extend({
             events : {
                 'click .next-page-link': 'nextPage',
@@ -29,7 +30,7 @@ define([
                     messageHtml = this.messageHtml(),
                     isNextDisabled = lastPage === 0 || currentPage === lastPage;
 
-                this.$el.html(_.template(pagingHeaderTemplate)({ messageHtml: messageHtml}));
+                this.$el.html(_.template(pagingHeaderTemplate)({ messageHtml: messageHtml, HtmlUtils: HtmlUtils}));
                 this.$('.previous-page-link')
                     .toggleClass('is-disabled', currentPage === 1)
                     .attr('aria-disabled', currentPage === 1);
@@ -44,7 +45,6 @@ define([
                 var message = '',
                     assetType = false;
 
-                /* jshint -W101 */
                 if (this.view.collection.assetType) {
                     if (this.view.collection.sortDirection === 'asc') {
                         // Translators: sample result:
@@ -67,7 +67,6 @@ define([
                         message = gettext('Showing {currentItemRange} out of {totalItemsCount}, sorted by {sortName} descending');
                     }
                 }
-                /* jshint +W101 */
 
                 return HtmlUtils.interpolateHtml(message, {
                     currentItemRange: this.currentItemRangeLabel(),
