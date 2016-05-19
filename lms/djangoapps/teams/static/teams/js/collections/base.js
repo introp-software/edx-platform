@@ -20,10 +20,7 @@
                     this.queryParams = _.extend({}, BaseCollection.prototype.queryParams, this.queryParams);
                     PagingCollection.prototype.constructor.call(this, models, options);
                 },
-
-                // Review Note: Had to overwrite this because if empty response is returned from server
-                // PagingCollection fails to parse it. PagingCollection expects the
-                // results key in object along with other meta keys
+                
                 parse: function (response, options) {
                     if (!response) {
                         response = {};

@@ -1,10 +1,15 @@
-define(["underscore", "backbone", "gettext", "text!templates/paging-header.underscore"],
-    function(_, Backbone, gettext, paging_header_template) {
+define([
+    'underscore',
+    'backbone',
+    'gettext',
+    'edx-ui-toolkit/js/utils/html-utils',
+    'text!templates/paging-header.underscore'
+], function(_, Backbone, gettext, HtmlUtils, paging_header_template) {
 
         var PagingHeader = Backbone.View.extend({
             events : {
-                "click .next-page-link": "nextPage",
-                "click .previous-page-link": "previousPage"
+                'click .next-page-link': 'nextPage',
+                'click .previous-page-link': 'previousPage'
             },
 
             initialize: function(options) {
@@ -23,6 +28,7 @@ define(["underscore", "backbone", "gettext", "text!templates/paging-header.under
                     lastPage = collection.getTotalPages(),
                     messageHtml = this.messageHtml(),
                     isNextDisabled = lastPage === 0 || currentPage === lastPage;
+
                 this.$el.html(_.template(paging_header_template)({ messageHtml: messageHtml}));
                 this.$(".previous-page-link")
                     .toggleClass("is-disabled", currentPage === 1)
@@ -40,32 +46,40 @@ define(["underscore", "backbone", "gettext", "text!templates/paging-header.under
                     if (this.view.collection.sortDirection === 'asc') {
                         // Translators: sample result:
                         // "Showing 0-9 out of 25 total, filtered by Images, sorted by Date Added ascending"
-                        message = gettext('Showing %(current_item_range)s out of %(total_items_count)s, filtered by %(asset_type)s, sorted by %(sort_name)s ascending');
+                        message = gettext(
+                            'Showing {currentItemRange} out of {totalItemsCount}, filtered by {assetType},' +
+                            ' sorted by {sortName} ascending'
+                        );
                     } else {
                         // Translators: sample result:
                         // "Showing 0-9 out of 25 total, filtered by Images, sorted by Date Added descending"
-                        message = gettext('Showing %(current_item_range)s out of %(total_items_count)s, filtered by %(asset_type)s, sorted by %(sort_name)s descending');
+                        message = gettext(
+                            'Showing {currentItemRange} out of {totalItemsCount}, filtered by {assetType},' +
+                            ' sorted by {sortName} descending');
                     }
                     asset_type = this.filterNameLabel();
-                }
-                else {
+                } else {
                     if (this.view.collection.sortDirection === 'asc') {
                         // Translators: sample result:
                         // "Showing 0-9 out of 25 total, sorted by Date Added ascending"
-                        message = gettext('Showing %(current_item_range)s out of %(total_items_count)s, sorted by %(sort_name)s ascending');
+                        message = gettext(
+                            'Showing {currentItemRange} out of {totalItemsCount}, sorted by {sortName} ascending'
+                        );
                     } else {
                         // Translators: sample result:
                         // "Showing 0-9 out of 25 total, sorted by Date Added descending"
-                        message = gettext('Showing %(current_item_range)s out of %(total_items_count)s, sorted by %(sort_name)s descending');
+                        message = gettext(
+                            'Showing {currentItemRange} out of {totalItemsCount}, sorted by {sortName} descending'
+                        );
                     }
                 }
 
-                return '<p>' + interpolate(message, {
-                        current_item_range: this.currentItemRangeLabel(),
-                        total_items_count: this.totalItemsCountLabel(),
-                        asset_type: asset_type,
-                        sort_name: this.sortNameLabel()
-                    }, true) + "</p>";
+                return '<p>' + HtmlUtils.interpolateHtml(message, {
+                        currentItemRange: this.currentItemRangeLabel(),
+                        totalItemsCount: this.totalItemsCountLabel(),
+                        assetType: asset_type,
+                        sortName: this.sortNameLabel()
+                    }) + '</p>';
             },
 
             currentItemRangeLabel: function() {
@@ -74,33 +88,41 @@ define(["underscore", "backbone", "gettext", "text!templates/paging-header.under
                     start = (collection.getPageNumber() - 1) * collection.getPageSize(),
                     count = collection.size(),
                     end = start + count;
-                return interpolate('<span class="count-current-shown">%(start)s-%(end)s</span>', {
-                    start: Math.min(start + 1, end),
-                    end: end
-                }, true);
+                return HtmlUtils.interpolateHtml(
+                    HtmlUtils.HTML('<span class="count-current-shown">{start}-{end}</span>'), {
+                        start: Math.min(start + 1, end),
+                        end: end
+                    });
             },
 
             totalItemsCountLabel: function() {
                 var totalItemsLabel;
                 // Translators: turns into "25 total" to be used in other sentences, e.g. "Showing 0-9 out of 25 total".
-                totalItemsLabel = interpolate(gettext('%(totalItems)s total'), {
+                totalItemsLabel = HtmlUtils.interpolateHtml(gettext('{totalItems} total'), {
                     totalItems: this.view.collection.getTotalRecords()
                 }, true);
-                return interpolate('<span class="count-total">%(totalItemsLabel)s</span>', {
-                    totalItemsLabel: totalItemsLabel
-                }, true);
+
+                return HtmlUtils.interpolateHtml(
+                    HtmlUtils.HTML('<span class="count-total">{totalItemsLabel}</span>'), {
+                        totalItemsLabel: totalItemsLabel
+                    }
+                );
             },
 
             sortNameLabel: function() {
-                return interpolate('<span class="sort-order">%(sort_name)s</span>', {
-                    sort_name: this.view.sortDisplayName()
-                }, true);
+                return HtmlUtils.interpolateHtml(
+                    HtmlUtils.HTML('<span class="sort-order">{sortName}</span>'), {
+                        sortName: this.view.sortDisplayName()
+                    }
+                );
             },
 
             filterNameLabel: function() {
-                return interpolate('<span class="filter-column">%(filter_name)s</span>', {
-                    filter_name: this.view.filterDisplayName()
-                }, true);
+                return HtmlUtils.interpolateHtml(
+                    HtmlUtils.HTML('<span class="filter-column">{filterName}</span>'), {
+                        filterName: this.view.filterDisplayName()
+                    }
+                );
             },
 
             nextPage: function() {

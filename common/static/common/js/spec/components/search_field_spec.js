@@ -96,8 +96,6 @@ define([
                 searchString: 'foo'
             }).render();
             searchFieldView.$('.action-clear').click();
-
-            // Review Note: New Backbone Paginator only includes search param if truthy
             assertNotInQueryParams('text_search');
 
             AjaxHelpers.respondWithJson(requests, {
