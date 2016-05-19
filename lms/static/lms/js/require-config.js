@@ -139,9 +139,6 @@
             "backbone-super": {
                 deps: ["backbone"]
             },
-            "paging-collection": {
-                deps: ["jquery", "underscore", "backbone.paginator"]
-            },
             "string_utils": {
                 deps: ["underscore"],
                 exports: "interpolate_text"

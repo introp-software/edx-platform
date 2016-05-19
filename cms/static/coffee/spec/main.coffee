@@ -211,9 +211,6 @@ requirejs.config({
         },
         "afontgarde": {
             exports: "AFontGarde"
-        },
-        "paging-collection": {
-            deps: ["jquery", "underscore", "backbone.paginator"]
         }
     }
 });

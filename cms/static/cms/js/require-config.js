@@ -258,9 +258,6 @@
             "afontgarde": {
                 exports: "AFontGarde"
             },
-            "paging-collection": {
-                deps: ["jquery", "underscore", "backbone.paginator"]
-            },
 
             // the following are all needed for annotation tools
             "video.dev": {
