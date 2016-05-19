@@ -6,7 +6,7 @@
         'underscore',
         'backbone',
         'logger',
-        'paging-collection',
+        'edx-ui-toolkit/js/pagination/paging-collection',
         'js/student_account/models/user_account_model',
         'js/student_account/models/user_preferences_model',
         'js/views/fields',

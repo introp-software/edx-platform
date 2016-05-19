@@ -2,7 +2,7 @@ define([
         'backbone',
         'jquery',
         'underscore',
-        'paging-collection',
+        'edx-ui-toolkit/js/pagination/paging-collection',
         'js/spec/student_profile/helpers',
         'js/student_profile/views/badge_list_view'
     ],

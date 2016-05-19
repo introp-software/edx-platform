@@ -30,7 +30,6 @@
             'backbone.paginator': 'common/js/vendor/backbone.paginator',
             'backbone-super': 'js/vendor/backbone-super',
             'jasmine-imagediff': 'js/vendor/jasmine-imagediff',
-            'paging-collection': 'edx-ui-toolkit/js/pagination/paging-collection',
             'URI': 'js/vendor/URI.min',
             'modernizr': 'edx-pattern-library/js/modernizr-custom',
             'afontgarde': 'edx-pattern-library/js/afontgarde',

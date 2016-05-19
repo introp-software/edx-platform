@@ -78,7 +78,6 @@
             "afontgarde": "edx-pattern-library/js/afontgarde",
             "edxicons": "edx-pattern-library/js/edx-icons",
             "draggabilly": "js/vendor/draggabilly",
-            "paging-collection": "edx-ui-toolkit/js/pagination/paging-collection",
 
             // Files needed by OVA
             "annotator": "js/vendor/ova/annotator-full",

@@ -29,7 +29,6 @@ requirejs.config({
         "backbone": "common/js/vendor/backbone",
         "backbone.associations": "xmodule_js/common_static/js/vendor/backbone-associations-min",
         "backbone.paginator": "common/js/vendor/backbone.paginator",
-        "paging-collection": "edx-ui-toolkit/js/pagination/paging-collection",
         "tinymce": "xmodule_js/common_static/js/vendor/tinymce/js/tinymce/tinymce.full.min",
         "jquery.tinymce": "xmodule_js/common_static/js/vendor/tinymce/js/tinymce/jquery.tinymce",
         "xmodule": "xmodule_js/src/xmodule",

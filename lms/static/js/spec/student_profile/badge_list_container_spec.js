@@ -3,7 +3,7 @@ define([
         'jquery',
         'underscore',
         'URI',
-        'paging-collection',
+        'edx-ui-toolkit/js/pagination/paging-collection',
         'common/js/spec_helpers/ajax_helpers',
         'js/spec/student_profile/helpers',
         'js/student_profile/views/badge_list_container'

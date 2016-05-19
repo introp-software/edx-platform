@@ -1,4 +1,8 @@
-define(["underscore", "paging-collection", "js/models/asset"], function(_, PagingCollection, AssetModel) {
+define([
+    "underscore",
+    "edx-ui-toolkit/js/pagination/paging-collection",
+    "js/models/asset"
+], function(_, PagingCollection, AssetModel) {
     'use strict';
 
     var AssetCollection = PagingCollection.extend({

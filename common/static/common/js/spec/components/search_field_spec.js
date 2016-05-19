@@ -1,7 +1,7 @@
 define([
     'underscore',
     'URI',
-    'paging-collection',
+    'edx-ui-toolkit/js/pagination/paging-collection',
     'common/js/components/views/search_field',
     'common/js/spec_helpers/ajax_helpers'
 ], function (_, URI, PagingCollection, SearchFieldView, AjaxHelpers) {

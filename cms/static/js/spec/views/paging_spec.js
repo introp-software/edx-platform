@@ -1,11 +1,11 @@
 define([
     "jquery",
-    "paging-collection",
-    "common/js/spec_helpers/ajax_helpers",
     "URI",
+    "common/js/spec_helpers/ajax_helpers",
+    "edx-ui-toolkit/js/pagination/paging-collection",
     "js/views/paging",
     "js/views/paging_header"
-], function ($, PagingCollection, AjaxHelpers, URI, PagingView, PagingHeader) {
+], function ($, URI, AjaxHelpers, PagingCollection, PagingView, PagingHeader) {
 
         var createPageableItem = function(index) {
             var id = 'item_' + index;

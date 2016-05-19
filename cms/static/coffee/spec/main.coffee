@@ -51,7 +51,6 @@ requirejs.config({
         "modernizr": "edx-pattern-library/js/modernizr-custom",
         "afontgarde": "edx-pattern-library/js/afontgarde",
         "edxicons": "edx-pattern-library/js/edx-icons",
-        "paging-collection": "edx-ui-toolkit/js/pagination/paging-collection",
 
         "mathjax": "//cdn.mathjax.org/mathjax/2.6-latest/MathJax.js?config=TeX-MML-AM_SVG&delayStartupUntil=configured",
         "youtube": "//www.youtube.com/player_api?noext",

@@ -1,6 +1,6 @@
 ;(function (define) {
     'use strict';
-    define(['paging-collection'],
+    define(['edx-ui-toolkit/js/pagination/paging-collection'],
         function(PagingCollection) {
             var BaseCollection = PagingCollection.extend({
                 queryParams: {

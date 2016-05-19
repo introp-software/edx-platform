@@ -2,7 +2,7 @@ define([
     'jquery',
     'URI',
     'underscore',
-    'paging-collection',
+    'edx-ui-toolkit/js/pagination/paging-collection',
     'common/js/spec_helpers/ajax_helpers',
     'common/js/components/views/paging_footer'
 ], function ($, URI, _, PagingCollection, AjaxHelpers, PagingFooter) {

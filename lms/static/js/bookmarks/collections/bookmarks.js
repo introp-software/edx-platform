@@ -1,7 +1,10 @@
 ;(function (define) {
     'use strict';
-    define(['backbone', 'paging-collection', 'js/bookmarks/models/bookmark'],
-        function (Backbone, PagingCollection, BookmarkModel) {
+    define([
+        'backbone',
+        'edx-ui-toolkit/js/pagination/paging-collection',
+        'js/bookmarks/models/bookmark'
+    ], function (Backbone, PagingCollection, BookmarkModel) {
             return PagingCollection.extend({
                 model: BookmarkModel,
 
