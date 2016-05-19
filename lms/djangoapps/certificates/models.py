@@ -467,10 +467,9 @@ def certificate_status_for_student(student, course_id):
                    should not be issued a certificate. This will
                    be set if allow_certificate is set to False in
                    the userprofile table
-    unverified   - The student was in verified enrollment track and
-                   the course do not have honor mode, at the same time
-                   the student did not have their identity verified
-                   even though they should be eligible for the cert otherwise
+    unverified   - The student is in verified enrollment track and
+                   the student did not have their identity verified,
+                   even though they should be eligible for the cert otherwise.
 
     If the status is "downloadable", the dictionary also contains
     "download_url".
