@@ -177,17 +177,16 @@ def perform_delegate_email_batches(entry_id, course_id, task_input, action_name)
         target.get_users(course_id, user_id)
         for target in targets
     ]
-    combined_qset = User.objects.none()
+    combined_set = User.objects.none()
     for qset in recipient_qsets:
-        combined_qset = combined_qset | qset
-    print combined_qset
-    combined_qset = qset.distinct()
+        combined_set |= qset
+    combined_set = combined_set.distinct()
     recipient_fields = ['profile__name', 'email']
 
     log.info(u"Task %s: Preparing to queue subtasks for sending emails for course %s, email %s",
              task_id, course_id, email_id)
 
-    total_recipients = combined_qset.count()
+    total_recipients = combined_set.count()
 
     routing_key = settings.BULK_EMAIL_ROUTING_KEY
     # if there are few enough emails, send them through a different queue
@@ -215,7 +214,7 @@ def perform_delegate_email_batches(entry_id, course_id, task_input, action_name)
         entry,
         action_name,
         _create_send_email_subtask,
-        [combined_qset],
+        [combined_set],
         recipient_fields,
         settings.BULK_EMAIL_EMAILS_PER_TASK,
         total_recipients,

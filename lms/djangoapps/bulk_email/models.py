@@ -98,10 +98,10 @@ class Target(models.Model):
             return self.cohort.users  # TODO: cohorts aren't hooked up, this may not work
         elif self.target_type == SEND_TO_ALL:
             # Return both learners and staff
-            recipient_qsets = [
-                use_read_replica_if_available(staff_instructor_qset),
-                use_read_replica_if_available(enrollment_qset),
-            ]
+            recipient_qsets = (
+                use_read_replica_if_available(staff_instructor_qset) |
+                use_read_replica_if_available(enrollment_qset)
+            )
             return recipient_qsets
         else:
             raise ValueError("Unrecognized target type {}".format(self.target_type))
