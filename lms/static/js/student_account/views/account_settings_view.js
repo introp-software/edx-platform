@@ -14,7 +14,7 @@
             navLink: '.account-nav-link',
             activeTab: 'aboutTabSections',
             accountSettingsTabs: [
-                {name: 'aboutTabSections', id: 'about-tab', label: gettext('About'), class: 'active'},
+                {name: 'aboutTabSections', id: 'about-tab', label: gettext('Account Information'), class: 'active'},
                 {name: 'accountsTabSections', id: 'accounts-tab', label: gettext('Linked Accounts')}
             ],
             events: {
