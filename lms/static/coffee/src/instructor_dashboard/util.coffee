@@ -230,13 +230,11 @@ create_email_message_views = ($messages_wrapper, emails) ->
 
     # Create hidden section for modal window
     email_id = email_info.email['id']
-    # safe-lint: disable=javascript-concat-html TNL-4633
     $message_content = $('<section>', "aria-hidden": "true", class: "modal email-modal", id: "email_message_" + email_id)
     $email_wrapper = $ '<div>', class: 'inner-wrapper email-content-wrapper'
     $email_header = $ '<div>', class: 'email-content-header'
 
     # Add copy email body button
-    # safe-lint: disable=javascript-concat-html TNL-4633
     $email_header.append($('<input>', type: "button", name: "copy-email-body-text", value: gettext("Copy Email To Editor"), id: "copy_email_" + email_id))
 
     $close_button = $ '<a>', href: '#', class: "close-modal"

@@ -54,12 +54,15 @@ class FakeEmail(FakeInfo):
     class FakeTarget(object):
         """ Corresponding fake target for a fake email """
         target_type = "expected"
+
         def get_target_type_display(self):
+            """ Mocks out a django method """
             return self.target_type
 
     class FakeTargetGroup(object):
         """ Helps to mock out a django M2M relationship """
         def all(self):
+            """ Mocks out a django method """
             return [FakeEmail.FakeTarget()]
 
     def __init__(self, email_id):
