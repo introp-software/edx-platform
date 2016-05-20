@@ -396,9 +396,9 @@ class XQueueCertInterface(object):
             cert.save()
             LOGGER.info(
                 (
-                    u"The user %s of course %s is not ID verified "
-                    u"but enrolled into verified course mode. "
-                    u"Set certificate status to unverified"
+                    u"User %s has a verified enrollment in course %s "
+                    u"but is missing ID verification. "
+                    u"Certificate status has been set to unverified"
                 ),
                 student.id,
                 unicode(course_id),
