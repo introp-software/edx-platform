@@ -11,6 +11,8 @@ from instructor.views.tools import get_student_from_identifier
 from django.core.exceptions import ObjectDoesNotExist
 import instructor.enrollment as enrollment
 
+from xmodule.modulestore.django import modulestore
+
 from student.roles import CourseStaffRole
 
 from student import auth
@@ -86,3 +88,14 @@ class InstructorService(object):
         else Returns False
         """
         return auth.user_has_role(user, CourseStaffRole(CourseKey.from_string(course_id)))
+
+    def create_ticket_for_suspicious_attempt(self, course_id):
+        """
+        Creates a Zendesk ticket if an exam attempt is reported as suspicious from the proctoring system.
+        :return:
+        """
+
+        course_key = CourseKey.from_string(course_id)
+        course = modulestore().get_course(course_key)
+        if course.create_zendesk_tickets:
+            pass
