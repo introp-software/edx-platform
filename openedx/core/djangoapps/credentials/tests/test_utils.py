@@ -198,4 +198,3 @@ class TestCredentialsRetrieval(ProgramsApiConfigMixin, CredentialsApiConfigMixin
 
         self.assertEqual(len(actual), 2)
         self.assertEqual(actual, expected)
-

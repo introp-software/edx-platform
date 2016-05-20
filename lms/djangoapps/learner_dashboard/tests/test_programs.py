@@ -14,6 +14,7 @@ from opaque_keys.edx import locator
 from provider.constants import CONFIDENTIAL
 
 from openedx.core.djangoapps.credentials.models import CredentialsApiConfig
+from openedx.core.djangoapps.credentials.tests import factories as credentials_factories
 from openedx.core.djangoapps.credentials.tests.mixins import CredentialsDataMixin, CredentialsApiConfigMixin
 from openedx.core.djangoapps.programs.tests.mixins import (
     ProgramsApiConfigMixin,
@@ -155,19 +156,20 @@ class TestProgramListing(
             '{}?next={}'.format(reverse('signin_user'), self.url)
         )
 
-    # TODO: Use a factory to generate this data.
     def _expected_credentials_data(self):
         """ Dry method for getting expected credentials."""
-
+        program_credentials_data = self.get_program_credentials_data()
         return [
-            {
-                "display_name": "Test Program A",
-                "credential_url": "http://credentials.edx.org/credentials/dummy-uuid-1/"
-            },
-            {
-                "display_name": "Test Program B",
-                "credential_url": "http://credentials.edx.org/credentials/dummy-uuid-2/"
-            }
+            credentials_factories.ProgramCredential(
+                display_name=self.PROGRAMS_API_RESPONSE['results'][0]['name'],
+                subtitle=self.PROGRAMS_API_RESPONSE['results'][0]['subtitle'],
+                credential_url=program_credentials_data[0]['certificate_url']
+            ),
+            credentials_factories.ProgramCredential(
+                display_name=self.PROGRAMS_API_RESPONSE['results'][1]['name'],
+                subtitle=self.PROGRAMS_API_RESPONSE['results'][1]['subtitle'],
+                credential_url=program_credentials_data[1]['certificate_url']
+            )
         ]
 
     @httpretty.activate
