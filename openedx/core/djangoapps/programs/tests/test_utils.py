@@ -12,7 +12,7 @@ from edx_oauth2_provider.tests.factories import ClientFactory
 from provider.constants import CONFIDENTIAL
 
 from lms.djangoapps.certificates.api import MODES
-from openedx.core.djangoapps.credentials.tests.mixins import CredentialsApiConfigMixin
+from openedx.core.djangoapps.credentials.tests.mixins import CredentialsApiConfigMixin, CredentialsDataMixin
 from openedx.core.djangoapps.programs import utils
 from openedx.core.djangoapps.programs.models import ProgramsApiConfig
 from openedx.core.djangoapps.programs.tests import factories
@@ -26,7 +26,7 @@ UTILS_MODULE = 'openedx.core.djangoapps.programs.utils'
 
 @skipUnless(settings.ROOT_URLCONF == 'lms.urls', 'Test only valid in lms')
 @attr('shard_2')
-class TestProgramRetrieval(ProgramsApiConfigMixin, ProgramsDataMixin,
+class TestProgramRetrieval(ProgramsApiConfigMixin, ProgramsDataMixin, CredentialsDataMixin,
                            CredentialsApiConfigMixin, CacheIsolationTestCase):
     """Tests covering the retrieval of programs from the Programs service."""
 
@@ -152,11 +152,12 @@ class TestProgramRetrieval(ProgramsApiConfigMixin, ProgramsDataMixin,
         """Verify programs data can be retrieved and parsed correctly for certificates."""
         self.create_programs_config()
         self.mock_programs_api()
+        program_credentials_data = self.get_program_credentials_data()
 
-        actual = utils.get_programs_for_credentials(self.user, self.PROGRAMS_CREDENTIALS_DATA)
+        actual = utils.get_programs_for_credentials(self.user, program_credentials_data)
         expected = self.PROGRAMS_API_RESPONSE['results'][:2]
-        expected[0]['credential_url'] = self.PROGRAMS_CREDENTIALS_DATA[0]['certificate_url']
-        expected[1]['credential_url'] = self.PROGRAMS_CREDENTIALS_DATA[1]['certificate_url']
+        expected[0]['credential_url'] = program_credentials_data[0]['certificate_url']
+        expected[1]['credential_url'] = program_credentials_data[1]['certificate_url']
 
         self.assertEqual(len(actual), 2)
         self.assertEqual(actual, expected)
@@ -167,8 +168,9 @@ class TestProgramRetrieval(ProgramsApiConfigMixin, ProgramsDataMixin,
         self.create_programs_config()
         self.create_credentials_config()
         self.mock_programs_api(data={'results': []})
+        program_credentials_data = self.get_program_credentials_data()
 
-        actual = utils.get_programs_for_credentials(self.user, self.PROGRAMS_CREDENTIALS_DATA)
+        actual = utils.get_programs_for_credentials(self.user, program_credentials_data)
         self.assertEqual(actual, [])
 
     @httpretty.activate

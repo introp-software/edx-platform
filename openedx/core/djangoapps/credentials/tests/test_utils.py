@@ -15,6 +15,7 @@ from openedx.core.djangoapps.credentials.utils import (
     get_user_program_credentials,
     get_programs_credentials
 )
+from openedx.core.djangoapps.credentials.tests import factories
 from openedx.core.djangoapps.programs.tests.mixins import ProgramsApiConfigMixin, ProgramsDataMixin
 from openedx.core.djangoapps.programs.models import ProgramsApiConfig
 from openedx.core.djangolib.testing.utils import CacheIsolationTestCase
@@ -39,6 +40,22 @@ class TestCredentialsRetrieval(ProgramsApiConfigMixin, CredentialsApiConfigMixin
         self.user = UserFactory()
 
         cache.clear()
+
+    def expected_credentials_display_data(self):
+        """ Returns expected credentials data to be represented. """
+        program_credentials_data = self.get_program_credentials_data()
+        return [
+            factories.ProgramCredential(
+                display_name=self.PROGRAMS_API_RESPONSE['results'][0]['name'],
+                subtitle=self.PROGRAMS_API_RESPONSE['results'][0]['subtitle'],
+                credential_url=program_credentials_data[0]['certificate_url']
+            ),
+            factories.ProgramCredential(
+                display_name=self.PROGRAMS_API_RESPONSE['results'][1]['name'],
+                subtitle=self.PROGRAMS_API_RESPONSE['results'][1]['subtitle'],
+                credential_url=program_credentials_data[1]['certificate_url']
+            )
+        ]
 
     @httpretty.activate
     def test_get_user_credentials(self):
@@ -99,9 +116,10 @@ class TestCredentialsRetrieval(ProgramsApiConfigMixin, CredentialsApiConfigMixin
         self.mock_credentials_api(self.user, reset_url=False)
 
         actual = get_user_program_credentials(self.user)
+        program_credentials_data = self.get_program_credentials_data()
         expected = self.PROGRAMS_API_RESPONSE['results'][:2]
-        expected[0]['credential_url'] = self.PROGRAMS_CREDENTIALS_DATA[0]['certificate_url']
-        expected[1]['credential_url'] = self.PROGRAMS_CREDENTIALS_DATA[1]['certificate_url']
+        expected[0]['credential_url'] = program_credentials_data[0]['certificate_url']
+        expected[1]['credential_url'] = program_credentials_data[1]['certificate_url']
 
         # checking response from API is as expected
         self.assertEqual(len(actual), 2)
@@ -140,10 +158,11 @@ class TestCredentialsRetrieval(ProgramsApiConfigMixin, CredentialsApiConfigMixin
         self.mock_programs_api()
         self.mock_credentials_api(self.user, reset_url=False)
         actual = get_programs_credentials(self.user, category='xseries')
+        expected = self.expected_credentials_display_data()
 
         # Checking result is as expected
         self.assertEqual(len(actual), 2)
-        self.assertEqual(actual, self.PROGRAMS_CREDENTIALS_DISPLAY_DATA)
+        self.assertEqual(actual, expected)
 
     @httpretty.activate
     def test_get_programs_credentials_category(self):
@@ -156,13 +175,14 @@ class TestCredentialsRetrieval(ProgramsApiConfigMixin, CredentialsApiConfigMixin
         self.mock_programs_api()
         self.mock_credentials_api(self.user, reset_url=False)
         actual = get_programs_credentials(self.user, category='dummy_category')
+        expected = self.expected_credentials_display_data()
 
         self.assertEqual(len(actual), 0)
 
         actual = get_programs_credentials(self.user, category='xseries')
 
         self.assertEqual(len(actual), 2)
-        self.assertEqual(actual, self.PROGRAMS_CREDENTIALS_DISPLAY_DATA)
+        self.assertEqual(actual, expected)
 
     @httpretty.activate
     def test_get_programs_credentials_no_category(self):
@@ -174,5 +194,8 @@ class TestCredentialsRetrieval(ProgramsApiConfigMixin, CredentialsApiConfigMixin
         self.mock_programs_api()
         self.mock_credentials_api(self.user, reset_url=False)
         actual = get_programs_credentials(self.user)
+        expected = self.expected_credentials_display_data()
 
-        self.assertEqual(len(actual), 0)
+        self.assertEqual(len(actual), 2)
+        self.assertEqual(actual, expected)
+

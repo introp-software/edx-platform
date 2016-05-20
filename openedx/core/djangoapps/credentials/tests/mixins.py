@@ -4,6 +4,7 @@ import json
 import httpretty
 
 from openedx.core.djangoapps.credentials.models import CredentialsApiConfig
+from openedx.core.djangoapps.credentials.tests import factories
 
 
 class CredentialsApiConfigMixin(object):
@@ -33,105 +34,91 @@ class CredentialsDataMixin(object):
     CREDENTIALS_API_RESPONSE = {
         "next": None,
         "results": [
-            {
-                "id": 1,
-                "username": "test",
-                "credential": {
-                    "credential_id": 1,
-                    "program_id": 1
-                },
-                "status": "awarded",
-                "uuid": "dummy-uuid-1",
-                "certificate_url": "http://credentials.edx.org/credentials/dummy-uuid-1/"
-            },
-            {
-                "id": 2,
-                "username": "test",
-                "credential": {
-                    "credential_id": 2,
-                    "program_id": 2
-                },
-                "status": "awarded",
-                "uuid": "dummy-uuid-2",
-                "certificate_url": "http://credentials.edx.org/credentials/dummy-uuid-2/"
-            },
-            {
-                "id": 3,
-                "username": "test",
-                "credential": {
-                    "credential_id": 3,
-                    "program_id": 3
-                },
-                "status": "revoked",
-                "uuid": "dummy-uuid-3",
-                "certificate_url": "http://credentials.edx.org/credentials/dummy-uuid-3/"
-            },
-            {
-                "id": 4,
-                "username": "test",
-                "credential": {
-                    "course_id": "edx/test01/2015",
-                    "credential_id": 4,
-                    "certificate_type": "honor"
-                },
-                "status": "awarded",
-                "uuid": "dummy-uuid-4",
-                "certificate_url": "http://credentials.edx.org/credentials/dummy-uuid-4/"
-            },
-            {
-                "id": 5,
-                "username": "test",
-                "credential": {
-                    "course_id": "edx/test02/2015",
-                    "credential_id": 5,
-                    "certificate_type": "verified"
-                },
-                "status": "awarded",
-                "uuid": "dummy-uuid-5",
-                "certificate_url": "http://credentials.edx.org/credentials/dummy-uuid-5/"
-            },
-            {
-                "id": 6,
-                "username": "test",
-                "credential": {
-                    "course_id": "edx/test03/2015",
-                    "credential_id": 6,
-                    "certificate_type": "honor"
-                },
-                "status": "revoked",
-                "uuid": "dummy-uuid-6",
-                "certificate_url": "http://credentials.edx.org/credentials/dummy-uuid-6/"
-            }
+            factories.UserCredentials(
+                id=1,
+                username='test',
+                credential=factories.ProgramCredentials(
+                    program_id=1
+                )
+
+            ),
+            factories.UserCredentials(
+                id=2,
+                username='test',
+                credential=factories.ProgramCredentials(
+                    program_id=2
+                )
+            ),
+            factories.UserCredentials(
+                id=3,
+                status='revoked',
+                username='test',
+                credential=factories.ProgramCredentials(
+                    program_id=3
+                )
+            ),
+            factories.UserCredentials(
+                id=4,
+                username='test',
+                credential=factories.CourseCredentials(
+                    certificate_type='honor'
+                )
+            ),
+            factories.UserCredentials(
+                id=5,
+                username='test',
+                credential=factories.CourseCredentials(
+                    course_id='edx/test02/2015'
+                )
+            ),
+            factories.UserCredentials(
+                id=6,
+                username='test',
+                credential=factories.CourseCredentials(
+                    course_id='edx/test02/2015'
+                )
+            ),
         ]
     }
 
     CREDENTIALS_NEXT_API_RESPONSE = {
         "next": None,
         "results": [
-            {
-                "id": 7,
-                "username": "test",
-                "credential": {
-                    "credential_id": 7,
-                    "program_id": 7
-                },
-                "status": "awarded",
-                "uuid": "dummy-uuid-7",
-                "certificate_url": "http://credentials.edx.org/credentials/dummy-uuid-7"
-            },
-            {
-                "id": 8,
-                "username": "test",
-                "credential": {
-                    "credential_id": 8,
-                    "program_id": 8
-                },
-                "status": "awarded",
-                "uuid": "dummy-uuid-8",
-                "certificate_url": "http://credentials.edx.org/credentials/dummy-uuid-8/"
-            }
+            factories.UserCredentials(
+                id=7,
+                username='test',
+                credential=factories.ProgramCredentials(
+                    program_id=7
+                )
+            ),
+            factories.UserCredentials(
+                id=8,
+                username='test',
+                credential=factories.ProgramCredentials(
+                    program_id=8
+                )
+            )
         ]
     }
+
+    def get_program_credentials_data(self):
+        """ Returns programs credentials data. """
+        return [
+            factories.UserCredentials(
+                id=1,
+                username='test',
+                credential=factories.ProgramCredentials(
+                    program_id=1
+                )
+            ),
+            factories.UserCredentials(
+                id=2,
+                username='test',
+                credential=factories.ProgramCredentials(
+                    program_id=2
+                )
+            )
+        ]
 
     def mock_credentials_api(self, user, data=None, status_code=200, reset_url=True, is_next_page=False):
         """Utility for mocking out Credentials API URLs."""

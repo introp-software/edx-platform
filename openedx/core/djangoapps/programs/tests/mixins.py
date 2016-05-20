@@ -100,44 +100,6 @@ class ProgramsDataMixin(object):
         ]
     }
 
-    PROGRAMS_CREDENTIALS_DATA = [
-        {
-            "id": 1,
-            "username": "test",
-            "credential": {
-                "credential_id": 1,
-                "program_id": 1
-            },
-            "status": "awarded",
-            "uuid": "dummy-uuid-1",
-            "certificate_url": "http://credentials.edx.org/credentials/dummy-uuid-1/"
-        },
-        {
-            "id": 2,
-            "username": "test",
-            "credential": {
-                "credential_id": 2,
-                "program_id": 2
-            },
-            "status": "awarded",
-            "uuid": "dummy-uuid-2",
-            "certificate_url": "http://credentials.edx.org/credentials/dummy-uuid-2/"
-        }
-    ]
-
-    PROGRAMS_CREDENTIALS_DISPLAY_DATA = [
-        factories.ProgramCredential(
-            display_name=PROGRAMS_API_RESPONSE['results'][0]['name'],
-            subtitle=PROGRAMS_API_RESPONSE['results'][0]['subtitle'],
-            credential_url=PROGRAMS_CREDENTIALS_DATA[0]['certificate_url']
-        ),
-        factories.ProgramCredential(
-            display_name=PROGRAMS_API_RESPONSE['results'][1]['name'],
-            subtitle=PROGRAMS_API_RESPONSE['results'][1]['subtitle'],
-            credential_url=PROGRAMS_CREDENTIALS_DATA[1]['certificate_url']
-        )
-    ]
-
     def mock_programs_api(self, data=None, status_code=200):
         """Utility for mocking out Programs API URLs."""
         self.assertTrue(httpretty.is_enabled(), msg='httpretty must be enabled to mock Programs API calls.')

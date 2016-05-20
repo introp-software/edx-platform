@@ -83,7 +83,8 @@ def get_programs_credentials(user, category=None):
     programs_credentials = get_user_program_credentials(user)
     credentials_data = []
     for program in programs_credentials:
-        if program.get('category') == category:
+        is_included = (category is None) or (program.get('category') == category)
+        if is_included:
             try:
                 program_data = {
                     'display_name': program['name'],
