@@ -2312,7 +2312,7 @@ def list_report_downloads(_request, course_id):
 
     response_payload = {
         'downloads': [
-            dict(name=name, url=url, link=HTML('<a href="{}">{}</a>').format(url, name))
+            dict(name=name, url=url, link=HTML('<a href="{}">{}</a>').format(HTML(url), name))
             for name, url in report_store.links_for(course_id)
         ]
     }
@@ -2332,7 +2332,7 @@ def list_financial_report_downloads(_request, course_id):
 
     response_payload = {
         'downloads': [
-            dict(name=name, url=url, link=HTML('<a href="{}">{}</a>').format(url, name))
+            dict(name=name, url=url, link=HTML('<a href="{}">{}</a>').format(HTML(url), name))
             for name, url in report_store.links_for(course_id)
         ]
     }
