@@ -12,6 +12,6 @@ $forum-color-community-ta: $green-d1;
 $forum-color-marked-answer: $green-d1;
 
 // post images
-$post-image-dimension: ($baseline*3);  // image size  + margin
-$response-image-dimension: ($baseline*2.5); // image size  + margin
-$comment-image-dimension: ($baseline*2); // image size  + margin
+$post-image-dimension: ($baseline*3 + px);  // image size  + margin
+$response-image-dimension: ($baseline*2.5 + px); // image size  + margin
+$comment-image-dimension: ($baseline*2 + px); // image size  + margin

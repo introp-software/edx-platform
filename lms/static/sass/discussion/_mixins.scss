@@ -1,12 +1,34 @@
 // discussion - mixins and extends
 // ====================
 
+// v1 compatibility
+// ====================
+@mixin line-height($fontSize: auto){
+  line-height: ($fontSize*1.48) + px;
+}
+
+// extends -hidden elems - screenreaders
+%text-sr {
+    // clip has been deprecated but is still supported
+    clip: rect(1px 1px 1px 1px);
+    clip: rect(1px, 1px, 1px, 1px);
+    position: absolute;
+    margin: -1px;
+    height: 1px;
+    width: 1px;
+    border: 0;
+    padding: 0;
+    overflow: hidden;
+    // ensure there are spaces in sr text
+    word-wrap: normal;
+}
+
 @mixin blue-button {
   @include linear-gradient(top, #6dccf1, #38a8e5);
   display: block;
   border: 1px solid #2d81ad;
   border-radius: 3px;
-  padding: 0 ($baseline*0.75);
+  padding: 0 ($baseline*0.75 + px);
   height: 35px;
   color: $white;
   text-shadow: none;
@@ -25,7 +47,7 @@
   display: block;
   border: 1px solid #aaa;
   border-radius: 3px;
-  padding: 0 ($baseline*0.75);
+  padding: 0 ($baseline*0.75 + px);
   height: 35px;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 1px 1px rgba(0, 0, 0, .15);
   color: $dark-gray;
@@ -42,7 +64,7 @@
   display: block;
   border: 1px solid #222;
   border-radius: 3px;
-  padding: 0 ($baseline*0.75);
+  padding: 0 ($baseline*0.75 + px);
   height: 35px;
   background: -webkit-linear-gradient(top, #777, #555);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 1px 1px rgba(0, 0, 0, .15);
@@ -61,7 +83,7 @@
   margin-top: 0;
   border: 1px solid #aaa;
   border-radius: 3px 3px 0 0;
-  padding: ($baseline/2);
+  padding: ($baseline/2 + px);
   width: 100%;
   height: 125px;
   background: $white;
@@ -88,7 +110,7 @@
 }
 
 @mixin discussion-wmd-preview-label {
-  @include padding-left($baseline/4);
+  @include padding-left($baseline/4 + px);
   padding-top: 3px;
   width: 100%;
   color: $gray-l2;
@@ -97,12 +119,12 @@
 }
 
 @mixin discussion-wmd-preview {
-  padding: ($baseline/2) $baseline;
+  padding: ($baseline/2 + px) ($baseline + px);
   width: auto;
   color: $gray-d3;
 
   ol, ul { // Fix up the RTL-only _reset.scss, but only in specific places
-    @include padding-left($baseline*2);
+    @include padding-left($baseline*2 + px);
     @include padding-right(0);
   }
 }
@@ -122,9 +144,9 @@
 
 @mixin forum-post-label($color) {
   @extend %t-weight4;
-  @include font-size(9);
+  font-size: 9px;
   display: inline;
-  margin-top: ($baseline/4);
+  margin-top: ($baseline/4 + px);
   border: 1px solid;
   border-radius: 3px;
   padding: 1px 6px;
@@ -135,7 +157,7 @@
   color: $color;
 
   .icon {
-    @include margin-right($baseline/5);
+    @include margin-right($baseline/5 + px);
   }
 
   &:last-child {
@@ -148,12 +170,12 @@
 }
 
 @mixin forum-user-label($color) {
-  @include font-size(9);
   @extend %t-weight5;
+  font-size: 9px;
   vertical-align: middle;
-  margin-left: ($baseline/4);
+  margin-left: ($baseline/4 + px);
   border-radius: 2px;
-  padding: 0 ($baseline/5);
+  padding: 0 ($baseline/5 + px);
   background: $color;
   font-style: normal;
   text-transform: uppercase;

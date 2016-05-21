@@ -1,3 +1,8 @@
+## mako
+
+<%! main_css = "style-discussion-main" %>
+
+<%page expression_filter="h"/>
 <%inherit file="../main.html" />
 <%namespace name='static' file='../static_content.html'/>
 <%!
@@ -10,9 +15,6 @@ from django.core.urlresolvers import reverse
 <%block name="pagetitle">${_("Discussion - {course_number}").format(course_number=course.display_number_with_default) | h}</%block>
 
 <%block name="headextra">
-<%static:css group='style-course-vendor'/>
-<%static:css group='style-course'/>
-
 <%include file="_js_head_dependencies.html" />
 </%block>
 
@@ -24,6 +26,7 @@ from django.core.urlresolvers import reverse
 
 <%include file="_discussion_course_navigation.html" args="active_page='discussion'" />
 
+<%block name="content">
 <section class="discussion container" id="discussion-container"
          data-roles="${roles | h}"
          data-course-id="${course_id | h}"
@@ -49,6 +52,7 @@ from django.core.urlresolvers import reverse
         </div>
     </div>
 </section>
+</%block>
 
 <%include file="_underscore_templates.html" />
 <%include file="_thread_list_template.html" />
