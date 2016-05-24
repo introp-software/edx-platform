@@ -164,7 +164,7 @@ def get_component_templates(courselike, library=False):
     """
     Returns the applicable component templates that can be used by the specified course or library.
     """
-    def create_template_dict(name, cat, boilerplate_name=None, tab="common", hinted=False):
+    def create_template_dict(name, cat, boilerplate_name=None, tab="common"):
         """
         Creates a component template dict.
 
@@ -172,15 +172,13 @@ def get_component_templates(courselike, library=False):
             display_name: the user-visible name of the component
             category: the type of component (problem, html, etc.)
             boilerplate_name: name of boilerplate for filling in default values. May be None.
-            hinted: True if hinted problem else False
-            tab: common(default)/advanced, which tab it goes in
+            tab: common(default)/advanced/hint, which tab it goes in
 
         """
         return {
             "display_name": name,
             "category": cat,
             "boilerplate_name": boilerplate_name,
-            "hinted": hinted,
             "tab": tab
         }
 
@@ -191,11 +189,34 @@ def get_component_templates(courselike, library=False):
         'video': _("Video")
     }
 
+    top_level_component_types = []
+    course_top_level_keys = courselike.top_level_modules
+    advanced_component_types = _advanced_component_types()
+    if isinstance(course_top_level_keys, list):
+        for category in course_top_level_keys:
+            if category in advanced_component_types:
+
+                try:
+                    component_display_names[category] = xblock_type_display_name(category, default_display_name=category)
+                    top_level_component_types.append(category)
+
+                except PluginMissingError:
+                    log.warning(
+                        "Top level component %s does not exist. It will not be added to the Studio new component menu.",
+                        category
+                    )
+    else:
+        log.error(
+            "Improper format for course advanced keys! %s",
+            course_top_level_keys
+        )
+
     component_templates = []
     categories = set()
     # The component_templates array is in the order of "advanced" (if present), followed
     # by the components in the order listed in COMPONENT_TYPES.
     component_types = COMPONENT_TYPES[:]
+    component_types.extend(top_level_component_types)
 
     # Libraries do not support discussions
     if library:
@@ -216,20 +237,20 @@ def get_component_templates(courselike, library=False):
             for template in component_class.templates():
                 filter_templates = getattr(component_class, 'filter_templates', None)
                 if not filter_templates or filter_templates(template, courselike):
-                    # Tab can be 'common' 'advanced'
+                    # Tab can be 'common' 'advanced' 'hint'
                     # Default setting is common/advanced depending on the presence of markdown
                     tab = 'common'
                     if template['metadata'].get('markdown') is None:
                         tab = 'advanced'
-                    hinted = template.get('hinted', False)
+                    # Then the problem can override that with a tab: attribute (note: not nested in metadata)
+                    tab = template.get('tab', tab)
 
                     templates_for_category.append(
                         create_template_dict(
                             _(template['metadata'].get('display_name')),    # pylint: disable=translation-of-non-string
                             category,
                             template.get('template_id'),
-                            tab,
-                            hinted,
+                            tab
                         )
                     )
 
@@ -251,7 +272,8 @@ def get_component_templates(courselike, library=False):
         component_templates.append({
             "type": category,
             "templates": templates_for_category,
-            "display_name": component_display_names[category]
+            "display_name": component_display_names[category],
+            "static_url": settings.STATIC_URL
         })
 
     # Libraries do not support advanced components at this time.
